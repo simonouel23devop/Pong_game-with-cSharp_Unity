@@ -1,9 +1,12 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(Rigidbody2D), typeof(Collider2D))]
 public class pong_ball : MonoBehaviour
 {
     public float speed = 5f;
+    public Text score;
+    public int[] scores = new int[2];
 
     private Vector2 dir;
     private Rigidbody2D rb;
@@ -14,7 +17,8 @@ public class pong_ball : MonoBehaviour
         rb.bodyType = RigidbodyType2D.Kinematic;
         rb.gravityScale = 0f;
 
-        GetComponent<Collider2D>().isTrigger = true;
+        // Make the collider solid (not a trigger)
+        GetComponent<Collider2D>().isTrigger = false;
     }
 
     private void Start()
@@ -36,6 +40,8 @@ public class pong_ball : MonoBehaviour
         {
             rb.position = Vector2.zero;
             dir.x = Mathf.Abs(dir.x);
+            scores[0]++;
+            score.text = scores[1] + " - " + scores[0];
             return;
         }
 
@@ -43,25 +49,27 @@ public class pong_ball : MonoBehaviour
         {
             rb.position = Vector2.zero;
             dir.x = -Mathf.Abs(dir.x);
+            scores[1]++;
+            score.text = scores[1] + " - " + scores[0];
             return;
         }
 
         rb.MovePosition(nextPosition);
     }
 
-    private void OnTriggerEnter2D(Collider2D other)
-{
-    Pong_bar paddle = other.GetComponentInParent<Pong_bar>();
-
-    if (paddle == null || !paddle.CompareTag("Paddle"))
+    private void OnCollisionEnter2D(Collision2D collision)
     {
-        return;
-    }
+        Pong_bar paddle = collision.collider.GetComponentInParent<Pong_bar>();
 
-    if ((paddle.isHumanPlayer && dir.x < 0f) ||
-        (!paddle.isHumanPlayer && dir.x > 0f))
-    {
-        dir.x *= -1f;
+        if (paddle == null || !paddle.CompareTag("Paddle"))
+        {
+            return;
+        }
+
+        if ((paddle.isHumanPlayer && dir.x < 0f) ||
+            (!paddle.isHumanPlayer && dir.x > 0f))
+        {
+            dir.x *= -1f;
+        }
     }
-}
 }
