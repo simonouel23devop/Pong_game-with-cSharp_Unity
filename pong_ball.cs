@@ -5,11 +5,12 @@ using UnityEngine.UI;
 public class pong_ball : MonoBehaviour
 {
     public float speed = 5f;
-    public Text score;
-    public int[] scores = new int[2];
+    [SerializeField] private Text score;
 
     private Vector2 dir;
     private Rigidbody2D rb;
+    private int playerScore;
+    private int aiScore;
 
     private void Awake()
     {
@@ -24,6 +25,14 @@ public class pong_ball : MonoBehaviour
     private void Start()
     {
         dir = Vector2.one.normalized;
+
+        if (score == null)
+        {
+            Debug.LogError("Assign the score UI Text component to the ball.", this);
+            return;
+        }
+
+        UpdateScoreDisplay();
     }
 
     private void FixedUpdate()
@@ -40,8 +49,8 @@ public class pong_ball : MonoBehaviour
         {
             rb.position = Vector2.zero;
             dir.x = Mathf.Abs(dir.x);
-            scores[0]++;
-            score.text = scores[1] + " - " + scores[0];
+            aiScore++;
+            UpdateScoreDisplay();
             return;
         }
 
@@ -49,8 +58,8 @@ public class pong_ball : MonoBehaviour
         {
             rb.position = Vector2.zero;
             dir.x = -Mathf.Abs(dir.x);
-            scores[1]++;
-            score.text = scores[1] + " - " + scores[0];
+            playerScore++;
+            UpdateScoreDisplay();
             return;
         }
 
@@ -70,6 +79,14 @@ public class pong_ball : MonoBehaviour
             (!paddle.isHumanPlayer && dir.x > 0f))
         {
             dir.x *= -1f;
+        }
+    }
+
+    private void UpdateScoreDisplay()
+    {
+        if (score != null)
+        {
+            score.text = $"{playerScore} - {aiScore}";
         }
     }
 }
